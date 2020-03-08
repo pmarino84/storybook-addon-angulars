@@ -1,5 +1,5 @@
 {
-  "name": "storybook-addon-angulars",
+  "name": "@pm/storybook-addon-angulars",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
