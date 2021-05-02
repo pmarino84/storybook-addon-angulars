@@ -2,7 +2,6 @@ import Component from '../decorators/Component';
 
 @Component({
   name: 'pmButton',
-  controller: Button,
   transclude: true,
   template: '<button class="pm-button" ng-click="$ctrl.handleClick($event)" ng-transclude></button>',
   bindings: {
