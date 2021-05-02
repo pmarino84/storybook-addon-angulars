@@ -1,6 +1,6 @@
 import ng from 'angular';
 
-const getInjector = (moduleName) => ng.injector(['ng', moduleName]);
+// const getInjector = (moduleName) => ng.injector(['ng', moduleName]);
 
 const bootstrapApp = (el, moduleName) => ng.bootstrap(el, [moduleName]);
 
@@ -12,11 +12,6 @@ function makeInternalModule(componentName, componentConfiguration) {
   tempModule.component(componentName, componentConfiguration);
   return tempModule;
 }
-
-// function compiler($compile, $rootScope) {
-//   return function compiler(template) { }
-// }
-// compiler.$inject = ['$compile', '$rootScope'];
 
 function templateProcessor(strings, ...values) {
   return strings.reduce((acc, str, i) => {
@@ -32,25 +27,36 @@ function templateProcessor(strings, ...values) {
   }, { template: '', scope: {} });
 }
 
-function compile($compile, $rootScope, template, cloneAttachFn) {
-  let $scope = $rootScope.$new(true);
-  let el = ng.element(template);
-  // $compile(el)($scope, (clonedElement, scope) => { });
-  $compile(el)($scope, cloneAttachFn);
+function createCompiler($el, template, props = {}) {
+  function compiler($compile, $rootScope) {
+    return () => {
+      // let $scope = $rootScope.$new(true);
+      let $scope = $el.scope() || $rootScope;
+      $compile($el.html(template))({ ...$scope, props }/* , () => $rootScope.digest() */);
+      $rootScope.digest();
+    }
+  }
+  compiler.$inject = ['$compile', '$rootScope'];
+
+  return compiler;
 }
 
 export function forComponentV2(componentName, componentConfiguration) {
   function createElement(builder) {
-    // return () => {
     let tempModule = makeInternalModule(componentName, componentConfiguration);
+
     let container = createContainer();
     const { template, scope } = builder(templateProcessor);
-    console.log("Template processed: ", { template, scope });
-    // container.innerHTML = template;
     bootstrapApp(container, tempModule.name);
 
+    const $element = ng.element(container);
+    const $injector = $element.injector();
+
+    const compiler = createCompiler($element, template, scope);
+
+    $injector.invoke(compiler);
+
     return container;
-    // };
   }
 
   return {

@@ -13,9 +13,9 @@ export const Button = () => {
   return forComponent(LibButton.meta.name, LibButton.meta).createElement(`<pm-button>wrapped button</pm-button>`);
 };
 
-export const Button2 = () => {
+export const ButtonWithClickAction = () => {
   return forComponentV2(LibButton.meta.name, LibButton.meta).createElement(compile => {
     let handleClick = action('click');
-    return compile`<pm-button on-click="${handleClick}($event)">wrapped button</pm-button>`;
+    return compile`<pm-button on-click="${handleClick}($event)">click me!</pm-button>`;
   });
 };
